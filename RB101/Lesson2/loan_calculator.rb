@@ -1,20 +1,14 @@
-#Need: loan amount, APR, duration (yrs)
-#Calculate the monthly interest rate and loan duration in months
-#Formula: m = p * (j / (1 - (1 + j)**(-n)))
-#m=monthly payment  p=loan amount  j=monthly interest  n=duration monthly
-
-
 def total_valid?(number)
-  #Expecting large numbers to be entered with commas like 1,000,000
-  #so trims commas to avoid things like '1,000,000'.to_i => 1
+  # Expecting large numbers to be entered with commas like 1,000,000
+  # so trims commas to avoid things like '1,000,000'.to_i => 1
   if number.include?(",")
     number.delete!(",")
   end
-  return number.to_i unless number.to_i == 0  
+  return number.to_i unless number.to_i == 0
 end
 
 def get_monthly_interest(apr)
-  #Expection a user input like '7%'
+  # Expection a user input like '7%'
   interest = (apr.to_f / 100) / 12
   return interest unless interest == 0.0
 end
@@ -37,8 +31,8 @@ EOS
 
 puts welcome
 
-#Start main program loop. Restarts if 
-#total_valid?, get_monthly_interest, or duration_in_months return nil
+# Start main program loop. Restarts if
+# total_valid?, get_monthly_interest, or duration_in_months return nil
 loop do
   puts "How much is the total of your loan?"
 
@@ -55,7 +49,6 @@ loop do
   total = total_valid?(total_loan)
   monthly_interest = get_monthly_interest(annual_interest)
   months = duration_in_months(years)
-
 
   if total && monthly_interest && months
     payment = monthly_payments(total, monthly_interest, months)
