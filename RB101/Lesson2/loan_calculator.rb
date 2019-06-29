@@ -1,8 +1,10 @@
+# Create Methods
+
 def total_valid?(number)
   # Expecting large numbers to be entered with commas like 1,000,000
-  # so trims commas to avoid things like '1,000,000'.to_i => 1
+  # so trims commas to avoid things like '1,000,000'.to_i == 1
   if number.include?(",")
-    number.delete!(",")
+    number = number.delete(",")
   end
   return number.to_i unless number.to_i == 0
 end
