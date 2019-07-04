@@ -1,22 +1,28 @@
-VALID_CHOICES = ['rock', 'paper', 'scissors']
+VALID_CHOICES = %w(rock paper scissors lizard spock)
+
+WIN_CONDITIONS = {
+                  'rock' => ['lizard', 'scissors'],
+                  'paper' => ['rock', 'spock'],
+                  'scissors' => ['paper', 'lizard'],
+                  'lizard' => ['spock', 'paper'],
+                  'spock' => ['scissors', 'rock']
+}
 
 def prompt(message)
   puts("=> #{message}")
 end
 
-def win?(first, second)
-  (first == 'rock' && second == 'scissors') ||
-    (first == 'paper' && second == 'rock') ||
-    (first == 'scissors' && second == 'paper')
+def win?(win, loss)
+  WIN_CONDITIONS[win].include?(loss)
 end
 
 def display_result(player, computer)
-  if win?(player, computer)
+  if player == computer
+    prompt("It's a tie!")
+  elsif win?(player, computer)
     prompt("You won!")
   elsif win?(computer, player)
-    prompt("The Computer won.")
-  else
-    prompt("It's a tie!")
+    prompt("The computer won.")
   end
 end
 
@@ -24,7 +30,7 @@ loop do
   choice = ''
   loop do
     prompt("Choose one: #{VALID_CHOICES.join(', ')}")
-    choice = gets.chomp
+    choice = gets.chomp.downcase
     
     if VALID_CHOICES.include?(choice)
       break
