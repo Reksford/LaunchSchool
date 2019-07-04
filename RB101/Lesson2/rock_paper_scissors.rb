@@ -1,3 +1,5 @@
+require "pry"
+
 VALID_CHOICES = %w(rock paper scissors lizard spock)
 
 WIN_CONDITIONS = {
@@ -6,6 +8,11 @@ WIN_CONDITIONS = {
                   'scissors' => ['paper', 'lizard'],
                   'lizard' => ['spock', 'paper'],
                   'spock' => ['scissors', 'rock']
+}
+
+SCORE = {
+          player: 0,
+          computer: 0
 }
 
 def prompt(message)
@@ -26,6 +33,23 @@ def display_result(player, computer)
   end
 end
 
+
+
+
+def reset()
+  SCORE[:player] = 0
+  SCORE[:computer] = 0
+end
+
+
+def increment_winner(player, computer)
+  if win?(player, computer)
+    SCORE[:player] += 1
+  elsif win?(computer, player)
+    SCORE[:computer] += 1
+  end  
+end
+
 loop do
   choice = ''
   loop do
@@ -43,7 +67,21 @@ loop do
 
   prompt("You chose: #{choice}; Computer chose: #{computer_choice}")
   display_result(choice, computer_choice)
-
+  increment_winner(choice, computer_choice)
+  
+  if SCORE.any? {|_, scores| scores >= 5}
+    if SCORE[:player] == 5
+      prompt("You are the grand winner!")
+    else
+      prompt("The computer is the grand winner.")
+    end
+    prompt("Would you like to reset the game?")
+    answer = gets.chomp
+    break unless answer.downcase.start_with?('y')
+    reset
+    next
+  end
+  
   prompt("Do you want to play again?")
   answer = gets.chomp
   break unless answer.downcase.start_with?('y')
