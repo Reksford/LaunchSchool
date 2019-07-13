@@ -5,7 +5,7 @@ hash.shift
 # a key-value pair and returns it as an array [key, value]
 # Modern Ruby keeps track of the order entries were made in a hash
 # and so shifts the first item then onwards down to the hashes
-# default value.
+# default value... as far as I can tell anyways.
 # Consider the following:
 
 new_hash = Hash.new
@@ -19,3 +19,6 @@ p new_hash.shift # => [:a, "Changed Second"]
 p new_hash.shift # => ["b", "Third in"]
 p new_hash.shift # => nil
 p new_hash # => {}
+
+# Hash#shift isn't always so straight forward upon further study
+# and so with more complex hashes the shift method is less reliable.
