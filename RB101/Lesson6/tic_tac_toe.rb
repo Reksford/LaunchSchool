@@ -2,6 +2,9 @@ require "pry"
 INITIAL = ' '
 PLAYER = 'X'
 COMPUTER = 'O'
+WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9],
+                 [1, 4, 7], [2, 5, 8], [3, 6, 9],
+                 [1, 5, 9], [3, 5, 7]]
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -59,17 +62,10 @@ def someone_won?(brd)
 end
 
 def detect_winner(brd)
-  winning_lines = [[1, 2, 3], [4, 5, 6], [7, 8, 9],
-                [1, 4, 7], [2, 5, 8], [3, 6, 9],
-                [1, 5, 9], [3, 5, 7]]
-  winning_lines.each do |line|
-    if brd[line[0]] == PLAYER &&
-       brd[line[1]] == PLAYER &&
-       brd[line[2]] == PLAYER
+  WINNING_LINES.each do |line|
+    if brd.values_at(*line).count(PLAYER) == 3
       return 'Player'
-    elsif brd[line[0]] == COMPUTER &&
-       brd[line[1]] == COMPUTER &&
-       brd[line[2]] == COMPUTER
+    elsif brd.values_at(*line).count(COMPUTER) == 3
       return 'Computer'
     end
   end
