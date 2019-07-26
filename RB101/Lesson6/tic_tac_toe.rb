@@ -37,10 +37,23 @@ def empty_squares(brd)
   brd.keys.select { |num| brd[num] == INITIAL }
 end
 
+def joinor (an_array, comma, word)
+  string = ''
+  an_array.each_with_index do |num, index|
+    num = num.to_s
+    if index == an_array.length - 1
+      string += "#{word} #{num}"
+    else
+      string += "#{num}#{comma} "
+    end
+  end
+  string
+end
+
 def player_places_piece!(brd)
   square = ''
   loop do
-    prompt "Choose a square (#{empty_squares(brd).join(', ')}):"
+    prompt "Choose a square (#{joinor(empty_squares(brd), ', ', 'or')}):"
     square = gets.chomp.to_i
     break if empty_squares(brd).include? square
     prompt "Sorry, that's not a valid choice."
@@ -49,8 +62,43 @@ def player_places_piece!(brd)
 end
 
 def computer_places_piece!(brd)
-  square = empty_squares(brd).sample
+  square = nil
+
+  WINNING_LINES.each do |line|
+    square = square_at_risk(brd, line, COMPUTER)
+    square = square_at_risk(brd, line, PLAYER)
+    break if square
+  end
+
+
+  if empty_squares(brd).include?(5)
+    square = 5
+  end
+
+  square ||= empty_squares(brd).sample
   brd[square] = COMPUTER
+end
+
+def square_at_risk(brd, line, player)
+  if brd.values_at(*line).count(player) == 2
+    brd.select { |key, value| line.include?(key) && value == ' '}.keys.first
+  end
+end
+
+def alternate_player(current_player)
+  if current_player == 'Player'
+    return 'Computer'
+  else
+    return 'Player'
+  end
+end
+
+def places_piece!(brd, current_player)
+  if current_player == 'Player'
+    player_places_piece!(brd)
+  else current_player == 'Computer'
+    computer_places_piece!(brd)
+  end
 end
 
 def board_full?(brd)
@@ -72,27 +120,43 @@ def detect_winner(brd)
   nil
 end
 
-loop do
-  board = intialize_board
+score = {'Player' => 0, 'Computer' => 0}
+loop do # Choose Player
+  prompt "Do you want to play first or second?"
+  current_player = ['Player', 'Computer'].sample
+  answer = gets.chomp.downcase
+  if answer.start_with?('f') || answer.to_i == 1
+    current_player = 'Player'
+  elsif answer.start_with?('s') || answer.to_i == 2
+    current_player = 'Computer'
+  end
 
-  loop do
+  loop do # Start Game
+    board = intialize_board
+
+    loop do # Main Gameplay Loop
+      display_board(board)
+      places_piece!(board, current_player)
+      current_player = alternate_player(current_player)
+      break if someone_won?(board) || board_full?(board)
+    end
+
     display_board(board)
-    player_places_piece!(board)
-    break if someone_won?(board) || board_full?(board)
-    computer_places_piece!(board)
-    break if someone_won?(board) || board_full?(board)
-  end
+    winner = detect_winner(board)
 
-  display_board(board)
+    if someone_won?(board)
+      prompt "#{winner} won!"
+      score[winner] += 1
+    else
+      prompt "It's a tie!"
+    end
 
-  if someone_won?(board)
-    prompt "#{detect_winner(board)} won!"
-  else
-    prompt "It's a tie!"
+    prompt "The #{score.key(5)} has won five games so far." if score.has_value?(5)
+    prompt "Play again? (y or n)"
+    answer = gets.chomp
+    break unless answer.downcase.start_with?('y')
   end
-  prompt "Play again? (y or n)"
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
+  break
 end
 
 prompt "Thank you for playing TicTacToe!"
