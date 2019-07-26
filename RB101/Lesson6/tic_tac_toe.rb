@@ -66,7 +66,7 @@ def computer_places_piece!(brd)
 
   WINNING_LINES.each do |line|
     square = square_at_risk(brd, line, COMPUTER)
-    square = square_at_risk(brd, line, PLAYER)
+    square ||= square_at_risk(brd, line, PLAYER)
     break if square
   end
 
