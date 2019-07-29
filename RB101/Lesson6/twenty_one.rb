@@ -6,9 +6,9 @@ def initialize_deck
   new_deck = []
   cards = [2, 3, 4, 5, 6, 7, 8, 9, 10, :j, :q, :k, :a]
   cards.each do |card|
-     4.times { new_deck.push(card) }
+    4.times { new_deck.push(card) }
   end
-  return new_deck
+  new_deck
 end
 
 def deal_a_card_to!(player_hand, deck)
@@ -41,7 +41,7 @@ def score(hand)
       break if total <= 21
     end
   end
-  return total
+  total
 end
 
 def bust?(hand)
@@ -51,9 +51,9 @@ end
 def display_hand(player)
   case player
   when 'player'
-    puts "You have: #{PLAYER_HAND.join(" and ")} (#{score(PLAYER_HAND)})"
+    puts "You have: #{PLAYER_HAND.join(' and ')} (#{score(PLAYER_HAND)})"
   when 'dealer'
-    puts "Dealer has: #{DEALER_HAND.join(" and ")} (#{score(DEALER_HAND)})"
+    puts "Dealer has: #{DEALER_HAND.join(' and ')} (#{score(DEALER_HAND)})"
   when 'open'
     puts "The Dealer shows: #{DEALER_HAND[0]} and an unknown card."
   end
@@ -72,12 +72,12 @@ end
 puts "======TWENTY-ONE======"
 # Main Gameplay Loop
 loop do
-# Start Game
+  # Start Game
   deck = initialize_deck.shuffle
   opening_deal!(deck)
 
   loop do
-  # Player turn
+    # Player turn
     display_hand('player')
     display_hand('open')
     loop do
@@ -96,7 +96,7 @@ loop do
       puts "You chose to stay."
       puts "You're current score is #{score(PLAYER_HAND)}"
     end
-  # Dealer turn
+    # Dealer turn
     display_hand('dealer')
     loop do
       break if score(DEALER_HAND) >= 17 || bust?(DEALER_HAND)
@@ -113,7 +113,7 @@ loop do
     break
   end
 
-# Compare Scores
+  # Compare Scores
   if bust?(PLAYER_HAND)
     display_hand('dealer')
     puts "The Dealer wins!"
@@ -127,7 +127,7 @@ loop do
 
   PLAYER_HAND.clear
   DEALER_HAND.clear
-  
+
   puts "Do you want to play again? (y, n)"
   answer = gets.chomp.downcase
   break unless answer.start_with?('y')
