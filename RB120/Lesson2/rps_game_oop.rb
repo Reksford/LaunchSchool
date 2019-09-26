@@ -1,68 +1,50 @@
 class Player
   attr_accessor :move, :name
 
-  def initialize(player_type = :human)
-    @player_type = player_type
-    @move = nil
+  def initialize
     set_name
   end
-  
+end
+
+class Human < Player
   def set_name
-    if human?
-      n = ""
-      puts "What is your name?"
-      loop do
-        n = gets.chomp
-        break unless n.empty?
-      end
-      self.name = n.capitalize
-    else
-      self.name = %w(Robbit Settit Chompit Gradet).sample
+    n = ""
+    puts "What is your name?"
+    loop do
+      n = gets.chomp
+      break unless n.empty?
     end
+    self.name = n.capitalize
   end
   
   def choose
-    if human?
-      puts "Choose rock, paper, or scissors:"
-      choice = nil
-      loop do
-        choice = gets.chomp
-        break if %w(rock paper scissors).include?(choice)
-        puts "Invalid move, try again."
-      end
-        self.move = choice
-    else
-      self.move = %w(rock paper scissors).sample
+    puts "Choose rock, paper, or scissors:"
+    choice = nil
+    loop do
+      choice = gets.chomp
+      break if %w(rock paper scissors).include?(choice)
+      puts "Invalid move, try again."
     end
-  end
-  
-  def human?
-    @player_type == :human
+    self.move = choice
   end
 end
 
-class Move
-  def initialize
-  
+class Computer < Player
+  def set_name
+    self.name = %w(Robbit Settit Chompit Gradet).sample
   end
-end
-
-class Rule
-  def initialize
   
+  def choose
+    self.move = %w(rock paper scissors).sample
   end
-end
-
-def compare(move1, move2)
-
 end
 
 class RPSGame
   attr_accessor :human, :computer
 
   def initialize
-    @human = Player.new
-    @computer = Player.new(:computer)
+    @human = Human.new
+    @computer = Computer.new
   end
   
   def display_welcome_message
