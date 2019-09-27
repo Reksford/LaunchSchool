@@ -27,29 +27,15 @@ class Move
   end
 
   def >(other_value)
-    if rock?
-      return true if other_value.scissors?
-      return false
-    elsif paper?
-      return true if other_value.rock?
-      return false
-    elsif scissors?
-      return true if other_value.paper?
-      return false
-    end
+    (rock? && other_value.scissors?) ||
+      (paper? && other_value.rock?) ||
+      (scissors? && other_value.paper?)
   end
 
   def <(other_value)
-    if rock?
-      return true if other_value.paper?
-      return false
-    elsif paper?
-      return true if other_value.scissors?
-      return false
-    elsif scissors?
-      return true if other_value.rock?
-      return false
-    end
+    (rock? && other_value.paper?) ||
+      (paper? && other_value.scissors?) ||
+      (scissors? && other_value.rock?)
   end
 
   def to_s
@@ -106,10 +92,12 @@ class RPSGame
     puts "Thank You for Playing!"
   end
 
-  def display_winner
+  def display_moves
     puts "#{human.name} chose #{human.move}."
     puts "#{computer.name}, the computer, chose #{computer.move}."
+  end
 
+  def display_winner
     if human.move > computer.move
       puts "#{human.name} wins!"
     elsif human.move < computer.move
@@ -122,8 +110,8 @@ class RPSGame
   def play_again?
     puts "Do you want to play again? (y/n)"
     answer = gets.chomp.downcase
-    return true if answer.start_with?('y')
-    return false
+    return false unless answer.start_with?('y')
+    true
   end
 
   def play
@@ -131,6 +119,7 @@ class RPSGame
     loop do
       human.choose
       computer.choose
+      display_moves
       display_winner
       break unless play_again?
     end
