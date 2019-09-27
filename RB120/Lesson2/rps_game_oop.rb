@@ -6,6 +6,57 @@ class Player
   end
 end
 
+class Move
+  attr_reader :value
+  VALUES = ['rock', 'paper', 'scissors']
+
+  def initialize(value)
+    @value = value
+  end
+
+  def rock?
+    value == 'rock'
+  end
+
+  def paper?
+    value == 'paper'
+  end
+
+  def scissors?
+    value == 'scissors'
+  end
+
+  def >(other_value)
+    if rock?
+      return true if other_value.scissors?
+      return false
+    elsif paper?
+      return true if other_value.rock?
+      return false
+    elsif scissors?
+      return true if other_value.paper?
+      return false
+    end
+  end
+
+  def <(other_value)
+    if rock?
+      return true if other_value.paper?
+      return false
+    elsif paper?
+      return true if other_value.scissors?
+      return false
+    elsif scissors?
+      return true if other_value.rock?
+      return false
+    end
+  end
+
+  def to_s
+    @value
+  end
+end
+
 class Human < Player
   def set_name
     n = ""
@@ -16,16 +67,16 @@ class Human < Player
     end
     self.name = n.capitalize
   end
-  
+
   def choose
     puts "Choose rock, paper, or scissors:"
     choice = nil
     loop do
       choice = gets.chomp
-      break if %w(rock paper scissors).include?(choice)
+      break if Move::VALUES.include?(choice)
       puts "Invalid move, try again."
     end
-    self.move = choice
+    self.move = Move.new(choice)
   end
 end
 
@@ -33,9 +84,9 @@ class Computer < Player
   def set_name
     self.name = %w(Robbit Settit Chompit Gradet).sample
   end
-  
+
   def choose
-    self.move = %w(rock paper scissors).sample
+    self.move = Move.new(Move::VALUES.sample)
   end
 end
 
@@ -46,42 +97,35 @@ class RPSGame
     @human = Human.new
     @computer = Computer.new
   end
-  
+
   def display_welcome_message
     puts "Welcome to Rock, Paper, Scissors!"
   end
-  
+
   def display_goodbye_message
     puts "Thank You for Playing!"
   end
-  
+
   def display_winner
     puts "#{human.name} chose #{human.move}."
     puts "#{computer.name}, the computer, chose #{computer.move}."
-  
-    case human.move
-    when 'rock'
-      puts "#{human.name} wins!" if computer.move == 'scissors'
-      puts "It's a tie!" if computer.move == 'rock'
-      puts "#{computer.name} wins." if computer.move == 'paper'
-    when 'paper'
-      puts "#{human.name} wins!" if computer.move == 'rock'
-      puts "It's a tie!" if computer.move == 'paper'
-      puts "#{computer.name} wins." if computer.move == 'scissors'
-    when 'scissors'
-      puts "#{human.name} wins!" if computer.move == 'paper'
-      puts "It's a tie!" if computer.move == 'scissors'
-      puts "#{computer.name} wins." if computer.move == 'rock'
+
+    if human.move > computer.move
+      puts "#{human.name} wins!"
+    elsif human.move < computer.move
+      puts "#{computer.name} wins."
+    else
+      puts "It's a tie!"
     end
   end
-  
+
   def play_again?
     puts "Do you want to play again? (y/n)"
     answer = gets.chomp.downcase
     return true if answer.start_with?('y')
     return false
   end
-  
+
   def play
     display_welcome_message
     loop do
