@@ -1,9 +1,43 @@
+module History
+  attr_reader :history
+
+  def add_to_history(move)
+    @history.push(move)
+  end
+  
+  def print_history
+    puts @history.join(', ')
+  end
+end
+
+module Logic
+  # Keeps track of losses, if Computer loses twice in a row
+  # it will not throw the same move twice.
+  # Which is not good a.i. I just wanted to program something.
+  def loses
+    self.move.status = :lost
+  end
+  
+  def lost_twice?
+    self.history[-1].status == :lost && self.history[-2].status == :lost
+  end
+  
+  def choose
+    self.move = Move.new(Move::VALUES.sample)
+    while (self.move.value == self.history[-1].value) do
+      self.move = Move.new(Move::VALUES.sample)
+    end
+  end
+end
+
 class Player
   attr_accessor :move, :name, :score
+  include History
 
   def initialize
     set_name
     @score = 0
+    @history = []
   end
   
   def wins
@@ -13,6 +47,7 @@ end
 
 class Move
   attr_reader :value
+  attr_accessor :status
   VALUES = ['rock', 'paper', 'scissors']
 
   def initialize(value)
@@ -68,16 +103,24 @@ class Human < Player
       puts "Invalid move, try again."
     end
     self.move = Move.new(choice)
+    self.add_to_history(move)
   end
 end
 
 class Computer < Player
+  include Logic
+
   def set_name
     self.name = %w(Robbit Settit Chompit Gradet).sample
   end
 
   def choose
-    self.move = Move.new(Move::VALUES.sample)
+    if history.size > 1 && lost_twice?
+      super
+    else
+      self.move = Move.new(Move::VALUES.sample)
+    end
+      self.add_to_history(move)
   end
 end
 
@@ -102,21 +145,26 @@ class RPSGame
     puts "#{computer.name}, the computer, chose #{computer.move}."
   end
 
-  def display_winner
-    if human.move > computer.move
+  def display_winner(winner = false)
+    if winner == human.name
       puts "#{human.name} wins!"
-    elsif human.move < computer.move
+    elsif winner == computer.name
       puts "#{computer.name} wins."
     else
       puts "It's a tie!"
     end
   end
   
-  def add_score
+  def resolve_winner
     if human.move > computer.move
       human.wins
+      computer.loses
+      display_winner(human.name)
     elsif human.move < computer.move
       computer.wins
+      display_winner(computer.name)
+    else
+      display_winner
     end
   end
 
@@ -133,11 +181,10 @@ class RPSGame
       human.choose
       computer.choose
       display_moves
-      display_winner
-      add_score
-        puts "#{human.name}: #{human.score} -- #{computer.name}: #{computer.score}"
+      resolve_winner
       break unless play_again?
     end
+    human.print_history
     display_goodbye_message
   end
 end
