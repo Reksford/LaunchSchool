@@ -1,3 +1,4 @@
+require 'pry'
 class Board
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9],
                    [1, 4, 7], [2, 5, 8], [3, 6, 9],
@@ -43,12 +44,29 @@ class Board
     return false if markers.size != 3
     markers.min == markers.max
   end
+  
+  def two_player_markers?(squares)
+    squares.collect(&:marker).count(TTTGame::HUMAN_MARKER) == 2 &&
+    squares.collect(&:marker).count(Square::INITIAL_MARKER) == 1
+  end
 
   def winning_marker
     WINNING_LINES.each do |line|
       squares = @squares.values_at(*line)
       if three_identical_markers?(squares)
         return squares.first.marker
+      end
+    end
+    nil
+  end
+  
+  def block_key
+    #returns a number or nil if there is no block
+    WINNING_LINES.each do |line|
+      squares = @squares.values_at(*line)
+      if two_player_markers?(squares)
+      #binding.pry
+        return line[squares.index { |square| square.marker == Square::INITIAL_MARKER }]
       end
     end
     nil
@@ -83,9 +101,29 @@ end
 
 class Player
   attr_reader :marker
+  attr_accessor :name
 
   def initialize(marker)
     @marker = marker
+  end
+end
+
+class Score
+  def initialize
+    @human = 0
+    @computer = 0
+  end
+  
+  def human_wins
+    @human += 1
+  end
+  
+  def computer_wins
+    @computer += 1
+  end
+  
+  def to_s
+    "Player: #{@human} | Computer: #{@computer}"
   end
 end
 
@@ -93,17 +131,19 @@ class TTTGame
   HUMAN_MARKER = 'X'
   COMPUTER_MARKER = 'O'
   FIRST_TO_MOVE = HUMAN_MARKER
-  attr_reader :board, :human, :computer
+  attr_reader :board, :human, :computer, :score
 
   def initialize
     @board = Board.new
     @human = Player.new(HUMAN_MARKER)
     @computer = Player.new(COMPUTER_MARKER)
     @current_turn = FIRST_TO_MOVE
+    @score = Score.new
   end
 
   def play
     display_welcome_message
+    set_name
     loop do
       display_board
       loop do
@@ -113,9 +153,11 @@ class TTTGame
       end
 
       display_result
+      update_score
       break unless play_again?
       reset
     end
+    puts score
     display_goodbye_message
   end
 
@@ -138,16 +180,29 @@ class TTTGame
     clear_screen_display_board
     case board.winning_marker
     when HUMAN_MARKER
-      puts "You won!"
+      puts "#{human.name} wins!"
     when COMPUTER_MARKER
-      puts "Computer won!"
+      puts "Computer wins!"
     else
       puts "It's a tie!"
     end
   end
+  
+  def joinor (an_array, comma, word)
+    string = ''
+    an_array.each_with_index do |num, index|
+      num = num.to_s
+      if index == an_array.length - 1
+        string += "#{word} #{num}"
+      else
+        string += "#{num}#{comma} "
+      end
+    end
+    string
+  end
 
   def display_board
-    puts "You are #{human.marker}"
+    puts "#{human.name}, are #{human.marker}"
     puts ""
     board.draw
     puts ""
@@ -157,13 +212,22 @@ class TTTGame
     clear
     display_board
   end
+  
+  def set_name
+    puts "Please enter player name:"
+    human.name = gets.chomp.capitalize
+  end
 
   def human_turn?
     @current_turn == HUMAN_MARKER
   end
+  
+  def block_moves?
+    !!board.block_key
+  end
 
   def human_moves
-    puts "Choose a square (#{board.unmarked_keys.join(', ')})"
+    puts "Choose a square (#{joinor(board.unmarked_keys, ",", "or")})"
     square = nil
     loop do
       square = gets.chomp.to_i
@@ -174,7 +238,11 @@ class TTTGame
   end
 
   def computer_moves
-    board[board.unmarked_keys.sample] = computer.marker
+    if block_moves?
+      board[board.block_key] = computer.marker
+    else
+      board[board.unmarked_keys.sample] = computer.marker
+    end
   end
 
   def current_player_moves
@@ -185,6 +253,15 @@ class TTTGame
       computer_moves
       @current_turn = HUMAN_MARKER
     end
+  end
+  
+  def update_score
+    winner = board.winning_marker
+    if winner == HUMAN_MARKER
+      score.human_wins
+    elsif winner == COMPUTER_MARKER
+      score.computer_wins
+    end      
   end
 
   def play_again?
