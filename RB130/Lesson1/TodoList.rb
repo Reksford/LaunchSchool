@@ -45,59 +45,86 @@ class TodoList
 
   def add(todo)
     #Should only take a todo object.
+    if todo.class != Todo
+      raise TypeError, "Can only add Todo objects"
+    end
+    todos << todo
   end
   
   alias :<< :add
   
   def size
-  
+    todos.size
   end
   
   def first
-  
+    todos.first
   end
   
   def last
-  
+    todos.last
   end
   
   def to_a
     # returns array of whole list
+    todos.clone
   end
   
   def done?
     # returns true if all todos in list are true
+    todos.each do |todo|
+      return false unless todo.done?
+    end
+    
+    true
   end
 
   def item_at(index)
-    # zero-indexed; raise IndexError if outside size
+    size_enforcement(index)
+    todos[index]
   end
   
   def mark_done_at(index)
-    # marks done; raise IndexError if outside size
+    item_at(index).done!
   end
   
   def mark_undone_at(index)
-    # marks undone; raise IndexError if outside size;
+    item_at(index).undone!
   end
   
   def done!
     # mark all items done
+    todos.each {|todo| todo.done! }
   end
   
   def shift
-    # remove and return first item
+    todos.shift
   end
   
   def pop
-    # remove and return last item
+    todos.pop
   end
   
   def remove_at(index)
-    # remove and return; raise IndexError if outside size
+    # remove and return
+    size_enforcement(index)
+    todos.slice!(index)
   end
   
+  private
+  
+  attr_reader :todos
+  
+  def size_enforcement(index)
+    # raise IndexError if outside size of todos list
+    if index >= self.size || index < -(self.size)
+      raise IndexError
+    end
+  end
+
   def to_s
-    #"---- Today's Todos ----" ; each todo on new line
+    str = "---- Today's Todos ----\n"
+    todos.each {|todo| str << "#{todo}\n" }
+    str
   end
 end
