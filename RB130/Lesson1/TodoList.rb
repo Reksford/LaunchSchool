@@ -72,11 +72,7 @@ class TodoList
   
   def done?
     # returns true if all todos in list are true
-    todos.each do |todo|
-      return false unless todo.done?
-    end
-    
-    true
+    todos.all? {|todo| todo.done? }
   end
 
   def item_at(index)
@@ -111,6 +107,15 @@ class TodoList
     todos.slice!(index)
   end
   
+  def each
+    index = 0
+    
+    while index < self.size
+      yield(item_at(index))
+      index += 1
+    end
+  end
+  
   private
   
   attr_reader :todos
@@ -124,7 +129,7 @@ class TodoList
 
   def to_s
     str = "---- Today's Todos ----\n"
-    todos.each {|todo| str << "#{todo}\n" }
+    todos.each {|todo| str << "#{todo.to_s}\n" }
     str
   end
 end
