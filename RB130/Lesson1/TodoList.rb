@@ -114,6 +114,17 @@ class TodoList
       yield(item_at(index))
       index += 1
     end
+    self
+  end
+  
+  def select
+    result = TodoList.new(title)
+    self.each do |item|
+      if yield(item)
+        result << item
+      end
+    end
+    result
   end
   
   private
