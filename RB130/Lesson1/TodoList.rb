@@ -127,6 +127,47 @@ class TodoList
     result
   end
   
+  def find_by_title(search)
+    #Return first todo obj that matches or nil
+    each do |todo|
+      return todo if todo.title == search
+    end
+    nil
+  end
+  
+  def all_done
+    #new TodoList with only done items
+    select do |todo|
+      todo.done?
+    end
+  end
+  
+  def all_not_done
+    #new TodoList with only undone items
+    select do |todo|
+      !todo.done?
+    end
+  end
+  
+  def mark_done(search)
+    each do |todo|
+      if todo.title == search
+        todo.done!
+        break
+      end
+    end
+  end
+  
+  def mark_all_done
+    done!
+  end
+  
+  def mark_all_undone
+    each do |todo|
+      todo.undone!
+    end
+  end
+  
   private
   
   attr_reader :todos
