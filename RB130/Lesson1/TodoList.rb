@@ -111,7 +111,7 @@ class TodoList
     index = 0
     
     while index < self.size
-      yield(item_at(index))
+      yield(item_at(index)) if block_given?
       index += 1
     end
     self
@@ -168,6 +168,12 @@ class TodoList
     end
   end
   
+  def to_s
+    str = "---- Today's Todos ----\n"
+    todos.each {|todo| str << "#{todo.to_s}\n" }
+    str
+  end
+
   private
   
   attr_reader :todos
@@ -177,11 +183,5 @@ class TodoList
     if index >= self.size || index < -(self.size)
       raise IndexError
     end
-  end
-
-  def to_s
-    str = "---- Today's Todos ----\n"
-    todos.each {|todo| str << "#{todo.to_s}\n" }
-    str
   end
 end
